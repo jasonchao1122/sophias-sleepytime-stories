@@ -37,12 +37,17 @@ function renderHome() {
   `;
 }
 
-function renderChapterList(bookSlug) {
+function renderBookScreen(bookSlug) {
   const book = BOOKS.find(b => b.slug === bookSlug);
+  const total = book.chapters.length;
+  const completed = getCompletedCount(bookSlug);
+  const totalTime = formatDuration(totalDurationSeconds(book));
+  const completedTime = formatDuration(completedDurationSeconds(book));
+
   const rows = book.chapters.map(ch => {
     const done = isChapterComplete(bookSlug, ch.slug);
     return `
-      <a class="chapter-row ${done ? 'complete' : ''}" href="#/${bookSlug}/${ch.slug}">
+      <a class="chapter-row ${done ? 'complete' : ''}" id="chapter-row-${ch.slug}" href="#" data-chapter-slug="${ch.slug}">
         <span class="chapter-check">${done ? '✓' : ''}</span>
         <span class="chapter-title">${ch.title}</span>
       </a>`;
@@ -50,31 +55,31 @@ function renderChapterList(bookSlug) {
 
   return `
     <a class="back-link" href="#/">&larr; Back</a>
+    <img class="book-hero" src="${book.cover}" onerror="this.style.display='none'">
     <h1>${book.title}</h1>
+    <p class="book-progress">${completed}/${total} chapters &middot; ${completedTime} of ${totalTime}</p>
     <div class="chapter-list">${rows}</div>
-  `;
-}
-
-function renderPlayerView(bookSlug, chapterSlug) {
-  return `
-    <a class="back-link" href="#/${bookSlug}">&larr; Back to chapters</a>
-    <h1 id="player-book-title"></h1>
-    <h2 id="player-chapter-title"></h2>
-    <div class="player-controls">
-      <button id="btn-prev">&#9198;</button>
-      <button id="btn-playpause">&#9654;</button>
-      <button id="btn-next">&#9197;</button>
-    </div>
-    <input id="scrub" type="range" min="0" max="100" value="0">
-    <div class="time-row">
-      <span id="time-current">0:00</span>
-      <span id="time-duration">0:00</span>
+    <div id="player-bar" class="player-bar hidden">
+      <img id="player-cover" class="player-bar-cover" src="${book.cover}" onerror="this.style.display='none'">
+      <div class="player-bar-main">
+        <div id="player-title" class="player-bar-title"></div>
+        <input id="scrub" type="range" min="0" max="100" value="0">
+        <div class="time-row">
+          <span id="time-current">0:00</span>
+          <span id="time-duration">0:00</span>
+        </div>
+      </div>
+      <div class="player-bar-controls">
+        <button id="btn-prev">&#9198;</button>
+        <button id="btn-playpause">&#9654;</button>
+        <button id="btn-next">&#9197;</button>
+      </div>
     </div>
   `;
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { renderHome, renderChapterList, renderPlayerView };
+  module.exports = { renderHome, renderBookScreen };
 }
 
 function route() {
@@ -84,15 +89,14 @@ function route() {
 
   if (parts.length === 0) {
     app.innerHTML = renderHome();
-  } else if (!BOOKS.find(b => b.slug === parts[0])) {
+    return;
+  }
+  if (!BOOKS.find(b => b.slug === parts[0])) {
     app.innerHTML = renderHome();
     return;
-  } else if (parts.length === 1) {
-    app.innerHTML = renderChapterList(parts[0]);
-  } else {
-    app.innerHTML = renderPlayerView(parts[0], parts[1]);
-    Player.startSession(parts[0], parts[1]);
   }
+  app.innerHTML = renderBookScreen(parts[0]);
+  Player.mountBookScreen(parts[0]);
 }
 
 if (typeof window !== 'undefined') {

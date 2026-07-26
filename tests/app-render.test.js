@@ -16,7 +16,7 @@ global.BOOKS = BOOKS;
 global.isChapterComplete = isChapterComplete;
 global.getCompletedCount = getCompletedCount;
 
-const { renderHome, renderChapterList, renderPlayerView } = require('../js/app.js');
+const { renderHome, renderBookScreen } = require('../js/app.js');
 
 const home = renderHome();
 assert.ok(home.includes("Jason's Sleepytime Stories"), 'home shows the headline');
@@ -32,15 +32,23 @@ const homeAfter = renderHome();
 assert.ok(homeAfter.includes('2/35 chapters'), 'home reflects completed chapter count');
 assert.ok(homeAfter.includes('15m'), 'home reflects completed-time progress');
 
-const list = renderChapterList('demon-copperhead');
-assert.ok(list.includes('Chapter 1'), 'chapter list shows Chapter 1');
-assert.ok(list.includes('Chapter 35'), 'chapter list shows Chapter 35');
-assert.ok(list.includes('complete'), 'completed chapter row is marked complete');
+const screen = renderBookScreen('demon-copperhead');
+assert.ok(screen.includes('Chapter 1: Trailer Park Birth'), 'book screen shows real chapter 1 title');
+assert.ok(screen.includes('Chapter 35: Angus and Ocean'), 'book screen shows real chapter 35 title');
+assert.ok(screen.includes('id="chapter-row-1"'), 'chapter row has a stable id for Player to target');
+assert.ok(screen.includes('data-chapter-slug="1"'), 'chapter row carries its slug for click handling');
+assert.ok(screen.includes('4h 28m'), 'book screen shows total runtime');
+assert.ok(screen.includes('id="player-bar"') && screen.includes('hidden'), 'player bar starts hidden');
+assert.ok(screen.includes('id="btn-playpause"'), 'player bar has a play/pause button');
+assert.ok(screen.includes('id="btn-prev"'), 'player bar has a previous button');
+assert.ok(screen.includes('id="btn-next"'), 'player bar has a next button');
+assert.ok(screen.includes('id="scrub"'), 'player bar has a scrub bar');
+assert.ok(screen.includes('id="player-title"'), 'player bar has a title element');
+assert.ok(screen.includes('id="player-cover"'), 'player bar has a cover thumbnail element');
 
-const player = renderPlayerView('demon-copperhead', '1');
-assert.ok(player.includes('id="btn-playpause"'), 'player has a play/pause button');
-assert.ok(player.includes('id="btn-prev"'), 'player has a previous button');
-assert.ok(player.includes('id="btn-next"'), 'player has a next button');
-assert.ok(player.includes('id="scrub"'), 'player has a scrub bar');
+markChapterComplete('demon-copperhead', '1');
+const screenAfter = renderBookScreen('demon-copperhead');
+assert.ok(screenAfter.includes('class="chapter-row complete" id="chapter-row-1"'), 'chapter-row-1 gets the complete class once marked done');
+assert.ok(screenAfter.includes('✓'), 'a checkmark appears after marking chapter 1 complete');
 
 console.log('app-render.test.js: all assertions passed');
