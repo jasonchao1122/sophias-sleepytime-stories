@@ -57,3 +57,21 @@ function renderPlayerView(bookSlug, chapterSlug) {
 if (typeof module !== 'undefined') {
   module.exports = { renderHome, renderChapterList, renderPlayerView };
 }
+
+function route() {
+  const hash = window.location.hash.slice(1); // drop leading '#'
+  const parts = hash.split('/').filter(Boolean);
+  const app = document.getElementById('app');
+
+  if (parts.length === 0) {
+    app.innerHTML = renderHome();
+  } else if (parts.length === 1) {
+    app.innerHTML = renderChapterList(parts[0]);
+  } else {
+    app.innerHTML = renderPlayerView(parts[0], parts[1]);
+    Player.startSession(parts[0], parts[1]);
+  }
+}
+
+window.addEventListener('hashchange', route);
+window.addEventListener('DOMContentLoaded', route);
