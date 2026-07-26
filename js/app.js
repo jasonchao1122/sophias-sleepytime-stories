@@ -65,6 +65,9 @@ function route() {
 
   if (parts.length === 0) {
     app.innerHTML = renderHome();
+  } else if (!BOOKS.find(b => b.slug === parts[0])) {
+    app.innerHTML = renderHome();
+    return;
   } else if (parts.length === 1) {
     app.innerHTML = renderChapterList(parts[0]);
   } else {

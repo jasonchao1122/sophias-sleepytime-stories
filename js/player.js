@@ -17,7 +17,9 @@
 
   function togglePlayPause() {
     if (AUDIO.paused) {
-      AUDIO.play();
+      AUDIO.play().catch(() => {
+        document.getElementById('btn-playpause').innerHTML = '&#9654;';
+      });
     } else {
       AUDIO.pause();
     }
@@ -31,7 +33,9 @@
     AUDIO.src = currentBook.chapters[index].file;
     AUDIO.onended = handleChapterEnded;
     if (opts.autoplay) {
-      AUDIO.play();
+      AUDIO.play().catch(() => {
+        document.getElementById('btn-playpause').innerHTML = '&#9654;';
+      });
     }
   }
 
@@ -82,7 +86,9 @@
     updateTitles();
     AUDIO.onended = handleIntroEnded;
     AUDIO.src = INTRO_FILE;
-    AUDIO.play();
+    AUDIO.play().catch(() => {
+      document.getElementById('btn-playpause').innerHTML = '&#9654;';
+    });
   }
 
   window.Player = { startSession };
