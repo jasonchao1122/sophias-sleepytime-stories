@@ -1,7 +1,8 @@
 (function () {
   const AUDIO = document.getElementById('audio-player');
   let currentBook = null;
-  let currentIndex = 0;
+  let currentIndex = null;
+  let introPlaying = false;
 
   function formatTime(seconds) {
     if (!isFinite(seconds)) return "0:00";
@@ -10,16 +11,35 @@
     return `${m}:${s}`;
   }
 
-  function updateTitles() {
-    document.getElementById('player-book-title').textContent = currentBook.title;
-    document.getElementById('player-chapter-title').textContent = currentBook.chapters[currentIndex].title;
+  function resetPlayIcon() {
+    const btn = document.getElementById('btn-playpause');
+    if (btn) btn.innerHTML = '&#9654;';
+  }
+
+  function updateTitle() {
+    const titleEl = document.getElementById('player-title');
+    if (!titleEl || currentIndex === null) return;
+    titleEl.textContent = introPlaying ? 'Intro' : currentBook.chapters[currentIndex].title;
+  }
+
+  function updateActiveRow() {
+    document.querySelectorAll('.chapter-row.active').forEach(el => el.classList.remove('active'));
+    if (currentIndex === null) return;
+    const row = document.getElementById('chapter-row-' + currentBook.chapters[currentIndex].slug);
+    if (row) row.classList.add('active');
+  }
+
+  function markRowComplete(slug) {
+    const row = document.getElementById('chapter-row-' + slug);
+    if (!row) return;
+    row.classList.add('complete');
+    const check = row.querySelector('.chapter-check');
+    if (check) check.textContent = '✓';
   }
 
   function togglePlayPause() {
     if (AUDIO.paused) {
-      AUDIO.play().catch(() => {
-        document.getElementById('btn-playpause').innerHTML = '&#9654;';
-      });
+      AUDIO.play().catch(resetPlayIcon);
     } else {
       AUDIO.pause();
     }
@@ -29,18 +49,20 @@
     opts = opts || {};
     if (index < 0 || index >= currentBook.chapters.length) return;
     currentIndex = index;
-    updateTitles();
+    introPlaying = false;
+    updateTitle();
+    updateActiveRow();
     AUDIO.src = currentBook.chapters[index].file;
     AUDIO.onended = handleChapterEnded;
     if (opts.autoplay) {
-      AUDIO.play().catch(() => {
-        document.getElementById('btn-playpause').innerHTML = '&#9654;';
-      });
+      AUDIO.play().catch(resetPlayIcon);
     }
   }
 
   function handleChapterEnded() {
-    markChapterComplete(currentBook.slug, currentBook.chapters[currentIndex].slug);
+    const finishedSlug = currentBook.chapters[currentIndex].slug;
+    markChapterComplete(currentBook.slug, finishedSlug);
+    markRowComplete(finishedSlug);
     if (currentIndex + 1 < currentBook.chapters.length) {
       loadChapter(currentIndex + 1, { autoplay: true });
     }
@@ -50,7 +72,7 @@
     loadChapter(currentIndex, { autoplay: true });
   }
 
-  function bindControls() {
+  function bindBarControls() {
     document.getElementById('btn-playpause').onclick = togglePlayPause;
     document.getElementById('btn-next').onclick = () => loadChapter(currentIndex + 1, { autoplay: true });
     document.getElementById('btn-prev').onclick = () => loadChapter(currentIndex - 1, { autoplay: true });
@@ -66,30 +88,43 @@
       if (AUDIO.duration) {
         scrub.value = (AUDIO.currentTime / AUDIO.duration) * 100;
       }
-      document.getElementById('time-current').textContent = formatTime(AUDIO.currentTime);
+      const timeEl = document.getElementById('time-current');
+      if (timeEl) timeEl.textContent = formatTime(AUDIO.currentTime);
     };
     AUDIO.onloadedmetadata = () => {
-      document.getElementById('time-duration').textContent = formatTime(AUDIO.duration);
+      const durEl = document.getElementById('time-duration');
+      if (durEl) durEl.textContent = formatTime(AUDIO.duration);
     };
     AUDIO.onplay = () => {
       document.getElementById('btn-playpause').innerHTML = '&#9208;';
     };
-    AUDIO.onpause = () => {
-      document.getElementById('btn-playpause').innerHTML = '&#9654;';
-    };
+    AUDIO.onpause = resetPlayIcon;
   }
 
-  function startSession(bookSlug, chapterSlug) {
-    currentBook = BOOKS.find(b => b.slug === bookSlug);
+  function selectChapter(chapterSlug) {
     currentIndex = currentBook.chapters.findIndex(c => c.slug === chapterSlug);
-    bindControls();
-    updateTitles();
+    if (currentIndex === -1) return;
+    document.getElementById('player-bar').classList.remove('hidden');
+    introPlaying = true;
+    updateTitle();
+    updateActiveRow();
     AUDIO.onended = handleIntroEnded;
     AUDIO.src = INTRO_FILE;
-    AUDIO.play().catch(() => {
-      document.getElementById('btn-playpause').innerHTML = '&#9654;';
+    AUDIO.play().catch(resetPlayIcon);
+  }
+
+  function mountBookScreen(bookSlug) {
+    currentBook = BOOKS.find(b => b.slug === bookSlug);
+    currentIndex = null;
+    introPlaying = false;
+    bindBarControls();
+    document.querySelectorAll('.chapter-row').forEach(row => {
+      row.onclick = (e) => {
+        e.preventDefault();
+        selectChapter(row.dataset.chapterSlug);
+      };
     });
   }
 
-  window.Player = { startSession };
+  window.Player = { mountBookScreen };
 })();
