@@ -1,10 +1,11 @@
 :root {
-  --color-bg: #FAF3E8;
-  --color-surface: #FFFDF8;
-  --color-text: #3B2F2A;
-  --color-muted: #8A7A6D;
-  --color-accent: #B0765C;
-  --color-accent-dark: #8C5A44;
+  --color-bg: #1C1512;
+  --color-surface: #2A211C;
+  --color-surface-raised: #33281F;
+  --color-text: #F2E9DD;
+  --color-muted: #B8A99A;
+  --color-accent: #D9A15B;
+  --color-accent-dark: #B8823F;
   --radius: 12px;
   --font-body: 'DM Sans', sans-serif;
   --font-display: 'Instrument Serif', serif;
@@ -23,60 +24,85 @@ body {
 #app {
   max-width: 480px;
   margin: 0 auto;
-  padding: 24px 16px 80px;
+  padding: 24px 16px 96px;
+}
+
+.site-header {
+  text-align: center;
+  margin: 16px 0 32px;
 }
 
 .site-header h1 {
   font-family: var(--font-display);
-  font-size: 2.25rem;
-  margin: 8px 0 24px;
-  text-align: center;
-  color: var(--color-accent-dark);
+  font-size: 2.75rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  margin: 0 0 12px;
+  color: var(--color-accent);
 }
 
-.book-list { display: flex; flex-direction: column; gap: 16px; }
+.site-header::after {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 2px;
+  background: var(--color-accent);
+  margin: 0 auto;
+}
+
+.book-list { display: flex; flex-direction: column; gap: 20px; }
 
 .book-card {
   display: flex;
-  gap: 16px;
-  align-items: center;
+  flex-direction: column;
   background: var(--color-surface);
   border-radius: var(--radius);
-  padding: 12px;
+  overflow: hidden;
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.35);
 }
 
 .book-cover {
-  width: 72px;
-  height: 72px;
-  border-radius: 8px;
+  width: 100%;
+  height: 200px;
   object-fit: cover;
-  background: var(--color-accent);
-  flex-shrink: 0;
+  background: var(--color-surface-raised);
+  display: block;
 }
 
 .book-card.cover-missing .book-cover { display: none; }
 
-.book-info h2 { margin: 0 0 4px; font-size: 1.1rem; }
+.book-info { padding: 14px 16px; }
+.book-info h2 { margin: 0 0 6px; font-size: 1.2rem; }
 .book-progress { margin: 0; color: var(--color-muted); font-size: 0.85rem; }
 
 .back-link {
   display: inline-block;
   margin-bottom: 16px;
-  color: var(--color-accent-dark);
+  color: var(--color-accent);
   text-decoration: none;
   font-size: 0.9rem;
 }
 
-.chapter-list { display: flex; flex-direction: column; gap: 8px; }
+.book-hero {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  background: var(--color-surface-raised);
+  display: block;
+}
+
+.chapter-list { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
 
 .chapter-row {
   display: flex;
   align-items: center;
   gap: 12px;
   background: var(--color-surface);
+  border: 1px solid transparent;
   border-radius: var(--radius);
   padding: 12px 16px;
   text-decoration: none;
@@ -84,28 +110,62 @@ body {
 }
 
 .chapter-row.complete { color: var(--color-muted); }
+.chapter-row.active {
+  border-color: var(--color-accent);
+  background: var(--color-surface-raised);
+}
 .chapter-check { width: 1.2em; color: var(--color-accent); font-weight: bold; }
 
-.player-controls {
+.player-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 32px;
-  margin: 32px 0 16px;
+  gap: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--color-surface-raised);
+  padding: 10px 16px;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.4);
 }
 
-.player-controls button {
+.player-bar.hidden { display: none; }
+
+.player-bar-cover {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-surface);
+}
+
+.player-bar-main { flex: 1; min-width: 0; }
+
+.player-bar-title {
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-bar-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.player-bar-controls button {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-bg);
   border: none;
   border-radius: 50%;
-  width: 56px;
-  height: 56px;
-  font-size: 1.4rem;
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
   cursor: pointer;
 }
 
-#btn-playpause { width: 72px; height: 72px; font-size: 1.8rem; }
+#btn-playpause { width: 44px; height: 44px; font-size: 1.2rem; }
 
 #scrub { width: 100%; accent-color: var(--color-accent); }
 
@@ -113,6 +173,6 @@ body {
   display: flex;
   justify-content: space-between;
   color: var(--color-muted);
-  font-size: 0.8rem;
-  margin-top: 4px;
+  font-size: 0.75rem;
+  margin-top: 2px;
 }
