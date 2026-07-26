@@ -73,5 +73,7 @@ function route() {
   }
 }
 
-window.addEventListener('hashchange', route);
-window.addEventListener('DOMContentLoaded', route);
+if (typeof window !== 'undefined') {
+  window.addEventListener('hashchange', route);
+  window.addEventListener('DOMContentLoaded', route);
+}
