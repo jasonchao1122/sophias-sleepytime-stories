@@ -96,7 +96,8 @@
       if (durEl) durEl.textContent = formatTime(AUDIO.duration);
     };
     AUDIO.onplay = () => {
-      document.getElementById('btn-playpause').innerHTML = '&#9208;';
+      const btn = document.getElementById('btn-playpause');
+      if (btn) btn.innerHTML = '&#9208;';
     };
     AUDIO.onpause = resetPlayIcon;
   }

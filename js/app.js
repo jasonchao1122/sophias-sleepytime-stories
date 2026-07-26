@@ -88,6 +88,8 @@ function route() {
   const app = document.getElementById('app');
 
   if (parts.length === 0) {
+    const audio = document.getElementById('audio-player');
+    if (audio) audio.pause();
     app.innerHTML = renderHome();
     return;
   }
