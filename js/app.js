@@ -1,13 +1,32 @@
+function formatDuration(totalSeconds) {
+  const totalMinutes = Math.round(totalSeconds / 60);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  return h === 0 ? `${m}m` : `${h}h ${m}m`;
+}
+
+function totalDurationSeconds(book) {
+  return book.chapters.reduce((sum, c) => sum + c.durationSeconds, 0);
+}
+
+function completedDurationSeconds(book) {
+  return book.chapters
+    .filter(c => isChapterComplete(book.slug, c.slug))
+    .reduce((sum, c) => sum + c.durationSeconds, 0);
+}
+
 function renderHome() {
   const cards = BOOKS.map(book => {
     const total = book.chapters.length;
     const completed = getCompletedCount(book.slug);
+    const totalTime = formatDuration(totalDurationSeconds(book));
+    const completedTime = formatDuration(completedDurationSeconds(book));
     return `
       <a class="book-card" href="#/${book.slug}">
         <img class="book-cover" src="${book.cover}" onerror="this.style.display='none'; this.parentElement.classList.add('cover-missing')">
         <div class="book-info">
           <h2>${book.title}</h2>
-          <p class="book-progress">${completed}/${total} chapters complete</p>
+          <p class="book-progress">${completed}/${total} chapters &middot; ${completedTime} of ${totalTime}</p>
         </div>
       </a>`;
   }).join('');

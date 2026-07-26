@@ -22,11 +22,15 @@ const home = renderHome();
 assert.ok(home.includes("Jason's Sleepytime Stories"), 'home shows the headline');
 assert.ok(home.includes('Demon Copperhead'), 'home lists Demon Copperhead');
 assert.ok(home.includes('James'), 'home lists James');
-assert.ok(home.includes('0/35 chapters complete'), 'home shows 0/35 before any progress');
+assert.ok(home.includes('0/35 chapters'), 'home shows 0/35 before any progress');
+assert.ok(home.includes('4h 28m'), 'home shows Demon Copperhead total runtime');
+assert.ok(home.includes('1h 40m'), 'home shows James total runtime');
 
 markChapterComplete('demon-copperhead', '1');
+markChapterComplete('demon-copperhead', '2');
 const homeAfter = renderHome();
-assert.ok(homeAfter.includes('1/35 chapters complete'), 'home reflects completed chapter count');
+assert.ok(homeAfter.includes('2/35 chapters'), 'home reflects completed chapter count');
+assert.ok(homeAfter.includes('15m'), 'home reflects completed-time progress');
 
 const list = renderChapterList('demon-copperhead');
 assert.ok(list.includes('Chapter 1'), 'chapter list shows Chapter 1');
