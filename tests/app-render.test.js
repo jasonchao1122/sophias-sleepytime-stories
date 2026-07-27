@@ -19,7 +19,7 @@ global.getCompletedCount = getCompletedCount;
 const { renderHome, renderBookScreen } = require('../js/app.js');
 
 const home = renderHome();
-assert.ok(home.includes("Jason's Sleepytime Stories"), 'home shows the headline');
+assert.ok(home.includes("Sophia's Sleepytime Stories"), 'home shows the headline');
 assert.ok(home.includes('Demon Copperhead'), 'home lists Demon Copperhead');
 assert.ok(home.includes('James'), 'home lists James');
 assert.ok(home.includes('0/35 chapters'), 'home shows 0/35 before any progress');

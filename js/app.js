@@ -32,7 +32,7 @@ function renderHome() {
   }).join('');
 
   return `
-    <header class="site-header"><h1>Jason's Sleepytime Stories</h1></header>
+    <header class="site-header"><h1>Sophia's Sleepytime Stories</h1></header>
     <div class="book-list">${cards}</div>
   `;
 }
