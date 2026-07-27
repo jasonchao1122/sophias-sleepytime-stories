@@ -45,6 +45,8 @@ assert.ok(screen.includes('id="btn-next"'), 'player bar has a next button');
 assert.ok(screen.includes('id="scrub"'), 'player bar has a scrub bar');
 assert.ok(screen.includes('id="player-title"'), 'player bar has a title element');
 assert.ok(screen.includes('id="player-cover"'), 'player bar has a cover thumbnail element');
+assert.ok(screen.includes('id="book-progress-line"'), 'progress line has a stable id for in-place updates');
+assert.ok(screen.includes('class="chapter-check" data-chapter-slug="1"'), 'checkmark carries its own slug for independent tap handling');
 
 markChapterComplete('demon-copperhead', '1');
 const screenAfter = renderBookScreen('demon-copperhead');

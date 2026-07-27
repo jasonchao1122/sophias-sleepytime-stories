@@ -48,7 +48,7 @@ function renderBookScreen(bookSlug) {
     const done = isChapterComplete(bookSlug, ch.slug);
     return `
       <a class="chapter-row ${done ? 'complete' : ''}" id="chapter-row-${ch.slug}" href="#" data-chapter-slug="${ch.slug}">
-        <span class="chapter-check">${done ? '✓' : ''}</span>
+        <span class="chapter-check" data-chapter-slug="${ch.slug}">${done ? '✓' : ''}</span>
         <span class="chapter-title">${ch.title}</span>
       </a>`;
   }).join('');
@@ -57,7 +57,7 @@ function renderBookScreen(bookSlug) {
     <a class="back-link" href="#/">&larr; Back</a>
     <img class="book-hero" src="${book.cover}" onerror="this.style.display='none'">
     <h1>${book.title}</h1>
-    <p class="book-progress">${completed}/${total} chapters &middot; ${completedTime} of ${totalTime}</p>
+    <p id="book-progress-line" class="book-progress">${completed}/${total} chapters &middot; ${completedTime} of ${totalTime}</p>
     <div class="chapter-list">${rows}</div>
     <div id="player-bar" class="player-bar hidden">
       <img id="player-cover" class="player-bar-cover" src="${book.cover}" onerror="this.style.display='none'">

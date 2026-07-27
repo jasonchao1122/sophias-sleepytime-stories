@@ -30,6 +30,17 @@ function markChapterComplete(bookSlug, chapterSlug) {
   saveProgress(progress);
 }
 
+function markChapterIncomplete(bookSlug, chapterSlug) {
+  const progress = loadProgress();
+  const completed = progress[bookSlug] || [];
+  const idx = completed.indexOf(chapterSlug);
+  if (idx !== -1) {
+    completed.splice(idx, 1);
+  }
+  progress[bookSlug] = completed;
+  saveProgress(progress);
+}
+
 function getCompletedCount(bookSlug) {
   const progress = loadProgress();
   return (progress[bookSlug] || []).length;
@@ -41,6 +52,7 @@ if (typeof module !== 'undefined') {
     saveProgress,
     isChapterComplete,
     markChapterComplete,
+    markChapterIncomplete,
     getCompletedCount,
   };
 }

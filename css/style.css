@@ -115,7 +115,21 @@ body {
   border-color: var(--color-accent);
   background: var(--color-surface-raised);
 }
-.chapter-check { width: 1.2em; color: var(--color-accent); font-weight: bold; }
+.chapter-check {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-muted);
+  border-radius: 50%;
+  color: var(--color-accent);
+  font-weight: bold;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.chapter-row.complete .chapter-check { border-color: var(--color-accent); }
 
 .player-bar {
   position: fixed;

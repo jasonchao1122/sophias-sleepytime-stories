@@ -1,8 +1,24 @@
 (function () {
   const AUDIO = document.getElementById('audio-player');
+  const SLEEP_TIMER_MS = 30 * 60 * 1000;
   let currentBook = null;
   let currentIndex = null;
   let introPlaying = false;
+  let sleepTimer = null;
+
+  function clearSleepTimer() {
+    if (sleepTimer) {
+      clearTimeout(sleepTimer);
+      sleepTimer = null;
+    }
+  }
+
+  function resetSleepTimer() {
+    clearSleepTimer();
+    sleepTimer = setTimeout(() => {
+      AUDIO.pause();
+    }, SLEEP_TIMER_MS);
+  }
 
   function formatTime(seconds) {
     if (!isFinite(seconds)) return "0:00";
@@ -29,18 +45,41 @@
     if (row) row.classList.add('active');
   }
 
-  function markRowComplete(slug) {
+  function setRowComplete(slug, complete) {
     const row = document.getElementById('chapter-row-' + slug);
     if (!row) return;
-    row.classList.add('complete');
+    row.classList.toggle('complete', complete);
     const check = row.querySelector('.chapter-check');
-    if (check) check.textContent = '✓';
+    if (check) check.textContent = complete ? '✓' : '';
+  }
+
+  function updateProgressLine() {
+    const line = document.getElementById('book-progress-line');
+    if (!line || !currentBook) return;
+    const total = currentBook.chapters.length;
+    const completed = currentBook.chapters.filter(c => isChapterComplete(currentBook.slug, c.slug)).length;
+    const totalTime = formatDuration(totalDurationSeconds(currentBook));
+    const completedTime = formatDuration(completedDurationSeconds(currentBook));
+    line.textContent = `${completed}/${total} chapters · ${completedTime} of ${totalTime}`;
+  }
+
+  function toggleChapterComplete(chapterSlug) {
+    const nowComplete = !isChapterComplete(currentBook.slug, chapterSlug);
+    if (nowComplete) {
+      markChapterComplete(currentBook.slug, chapterSlug);
+    } else {
+      markChapterIncomplete(currentBook.slug, chapterSlug);
+    }
+    setRowComplete(chapterSlug, nowComplete);
+    updateProgressLine();
   }
 
   function togglePlayPause() {
     if (AUDIO.paused) {
+      resetSleepTimer();
       AUDIO.play().catch(resetPlayIcon);
     } else {
+      clearSleepTimer();
       AUDIO.pause();
     }
   }
@@ -62,7 +101,8 @@
   function handleChapterEnded() {
     const finishedSlug = currentBook.chapters[currentIndex].slug;
     markChapterComplete(currentBook.slug, finishedSlug);
-    markRowComplete(finishedSlug);
+    setRowComplete(finishedSlug, true);
+    updateProgressLine();
     if (currentIndex + 1 < currentBook.chapters.length) {
       loadChapter(currentIndex + 1, { autoplay: true });
     }
@@ -74,8 +114,14 @@
 
   function bindBarControls() {
     document.getElementById('btn-playpause').onclick = togglePlayPause;
-    document.getElementById('btn-next').onclick = () => loadChapter(currentIndex + 1, { autoplay: true });
-    document.getElementById('btn-prev').onclick = () => loadChapter(currentIndex - 1, { autoplay: true });
+    document.getElementById('btn-next').onclick = () => {
+      resetSleepTimer();
+      loadChapter(currentIndex + 1, { autoplay: true });
+    };
+    document.getElementById('btn-prev').onclick = () => {
+      resetSleepTimer();
+      loadChapter(currentIndex - 1, { autoplay: true });
+    };
 
     const scrub = document.getElementById('scrub');
     scrub.oninput = () => {
@@ -109,6 +155,7 @@
     introPlaying = true;
     updateTitle();
     updateActiveRow();
+    resetSleepTimer();
     AUDIO.onended = handleIntroEnded;
     AUDIO.src = INTRO_FILE;
     AUDIO.play().catch(resetPlayIcon);
@@ -118,11 +165,19 @@
     currentBook = BOOKS.find(b => b.slug === bookSlug);
     currentIndex = null;
     introPlaying = false;
+    clearSleepTimer();
     bindBarControls();
     document.querySelectorAll('.chapter-row').forEach(row => {
       row.onclick = (e) => {
         e.preventDefault();
         selectChapter(row.dataset.chapterSlug);
+      };
+    });
+    document.querySelectorAll('.chapter-check').forEach(check => {
+      check.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleChapterComplete(check.dataset.chapterSlug);
       };
     });
   }
