@@ -92,8 +92,8 @@ const JAMES_DURATIONS = [
 ];
 
 const CUP_TITLES = [
-  "Commander Blast Murdered",
-  "Groundskeeper Attacks Anna",
+  "Commander Blas Murdered",
+  "Investigating the Servants",
   "Leviathan Breaches Wall",
   "Secretary Found Dead",
   "Coming Soon",

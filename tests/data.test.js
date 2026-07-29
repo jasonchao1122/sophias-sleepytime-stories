@@ -47,7 +47,7 @@ assert.strictEqual(cup.cover, 'covers/the-tainted-cup.jpg');
 assert.strictEqual(cup.chapters.length, 20, 'The Tainted Cup has 20 chapter slots');
 assert.deepStrictEqual(cup.chapters[0], {
   slug: '1',
-  title: 'Chapter 1: Commander Blast Murdered',
+  title: 'Chapter 1: Commander Blas Murdered',
   file: 'audio/the-tainted-cup/Cup 1.m4a',
   durationSeconds: 793.682667,
 });
