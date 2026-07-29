@@ -45,6 +45,13 @@ function renderBookScreen(bookSlug) {
   const completedTime = formatDuration(completedDurationSeconds(book));
 
   const rows = book.chapters.map(ch => {
+    if (ch.file === null) {
+      return `
+        <div class="chapter-row coming-soon" id="chapter-row-${ch.slug}">
+          <span class="chapter-check"></span>
+          <span class="chapter-title">${ch.title}</span>
+        </div>`;
+    }
     const done = isChapterComplete(bookSlug, ch.slug);
     return `
       <a class="chapter-row ${done ? 'complete' : ''}" id="chapter-row-${ch.slug}" href="#" data-chapter-slug="${ch.slug}">

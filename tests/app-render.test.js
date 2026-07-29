@@ -22,6 +22,7 @@ const home = renderHome();
 assert.ok(home.includes("Sophia's Sleepytime Stories"), 'home shows the headline');
 assert.ok(home.includes('Demon Copperhead'), 'home lists Demon Copperhead');
 assert.ok(home.includes('James'), 'home lists James');
+assert.ok(home.includes('The Tainted Cup'), 'home lists The Tainted Cup');
 assert.ok(home.includes('0/35 chapters'), 'home shows 0/35 before any progress');
 assert.ok(home.includes('4h 28m'), 'home shows Demon Copperhead total runtime');
 assert.ok(home.includes('1h 40m'), 'home shows James total runtime');
@@ -52,5 +53,12 @@ markChapterComplete('demon-copperhead', '1');
 const screenAfter = renderBookScreen('demon-copperhead');
 assert.ok(screenAfter.includes('class="chapter-row complete" id="chapter-row-1"'), 'chapter-row-1 gets the complete class once marked done');
 assert.ok(screenAfter.includes('✓'), 'a checkmark appears after marking chapter 1 complete');
+
+const cupScreen = renderBookScreen('the-tainted-cup');
+assert.ok(cupScreen.includes('<a class="chapter-row " id="chapter-row-1" href="#" data-chapter-slug="1">'), 'chapter 1 is a real, tappable row');
+assert.ok(cupScreen.includes('<div class="chapter-row coming-soon" id="chapter-row-5">'), 'chapter 5 renders as a non-interactive coming-soon row');
+assert.ok(cupScreen.includes('Chapter 5: Coming Soon'), 'coming-soon chapters show their label');
+assert.ok(!cupScreen.includes('id="chapter-row-5" href="#"'), 'coming-soon row is not a link');
+assert.ok(!cupScreen.includes('<span class="chapter-check" data-chapter-slug="5">'), 'coming-soon checkmark has no slug to bind clicks to');
 
 console.log('app-render.test.js: all assertions passed');

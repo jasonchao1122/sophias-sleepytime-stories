@@ -2,7 +2,7 @@ const assert = require('assert');
 const { BOOKS, INTRO_FILE } = require('../js/data.js');
 
 assert.strictEqual(INTRO_FILE, 'audio/intro.m4a', 'INTRO_FILE path');
-assert.strictEqual(BOOKS.length, 2, 'exactly two books');
+assert.strictEqual(BOOKS.length, 3, 'exactly three books');
 
 const demon = BOOKS.find(b => b.slug === 'demon-copperhead');
 assert.ok(demon, 'demon-copperhead book exists');
@@ -38,6 +38,36 @@ assert.deepStrictEqual(james.chapters[15], {
   title: 'Chapter 16: Reunited, Escape North',
   file: 'audio/james/James 16.m4a',
   durationSeconds: 86.440000,
+});
+
+const cup = BOOKS.find(b => b.slug === 'the-tainted-cup');
+assert.ok(cup, 'the-tainted-cup book exists');
+assert.strictEqual(cup.title, 'The Tainted Cup');
+assert.strictEqual(cup.cover, 'covers/the-tainted-cup.jpg');
+assert.strictEqual(cup.chapters.length, 20, 'The Tainted Cup has 20 chapter slots');
+assert.deepStrictEqual(cup.chapters[0], {
+  slug: '1',
+  title: 'Chapter 1: Commander Blast Murdered',
+  file: 'audio/the-tainted-cup/Cup 1.m4a',
+  durationSeconds: 793.682667,
+});
+assert.deepStrictEqual(cup.chapters[3], {
+  slug: '4',
+  title: 'Chapter 4: Secretary Found Dead',
+  file: 'audio/the-tainted-cup/Cup 4.m4a',
+  durationSeconds: 786.685333,
+});
+assert.deepStrictEqual(cup.chapters[4], {
+  slug: '5',
+  title: 'Chapter 5: Coming Soon',
+  file: null,
+  durationSeconds: 0,
+});
+assert.deepStrictEqual(cup.chapters[19], {
+  slug: '20',
+  title: 'Chapter 20: Coming Soon',
+  file: null,
+  durationSeconds: 0,
 });
 
 console.log('data.test.js: all assertions passed');

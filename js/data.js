@@ -3,11 +3,16 @@ const INTRO_FILE = "audio/intro.m4a";
 function makeChapters(bookSlug, filePrefix, titles, durations) {
   return titles.map((name, idx) => {
     const n = idx + 1;
+    const duration = durations[idx];
+    const title = name ? `Chapter ${n}: ${name}` : `Chapter ${n}`;
+    if (duration == null) {
+      return { slug: String(n), title, file: null, durationSeconds: 0 };
+    }
     return {
       slug: String(n),
-      title: `Chapter ${n}: ${name}`,
+      title,
       file: `audio/${bookSlug}/${filePrefix} ${n}.m4a`,
-      durationSeconds: durations[idx],
+      durationSeconds: duration,
     };
   });
 }
@@ -86,6 +91,35 @@ const JAMES_DURATIONS = [
   86.440000,
 ];
 
+const CUP_TITLES = [
+  "Commander Blast Murdered",
+  "Groundskeeper Attacks Anna",
+  "Leviathan Breaches Wall",
+  "Secretary Found Dead",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+  "Coming Soon",
+];
+
+const CUP_DURATIONS = [
+  793.682667, 602.408000, 457.810667, 786.685333,
+  null, null, null, null, null, null, null, null,
+  null, null, null, null, null, null, null, null,
+];
+
 const BOOKS = [
   {
     slug: "demon-copperhead",
@@ -98,6 +132,12 @@ const BOOKS = [
     title: "James",
     cover: "covers/james.jpg",
     chapters: makeChapters("james", "James", JAMES_TITLES, JAMES_DURATIONS),
+  },
+  {
+    slug: "the-tainted-cup",
+    title: "The Tainted Cup",
+    cover: "covers/the-tainted-cup.jpg",
+    chapters: makeChapters("the-tainted-cup", "Cup", CUP_TITLES, CUP_DURATIONS),
   },
 ];
 

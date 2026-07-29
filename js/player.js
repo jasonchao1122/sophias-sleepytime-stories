@@ -167,13 +167,13 @@
     introPlaying = false;
     clearSleepTimer();
     bindBarControls();
-    document.querySelectorAll('.chapter-row').forEach(row => {
+    document.querySelectorAll('.chapter-row[data-chapter-slug]').forEach(row => {
       row.onclick = (e) => {
         e.preventDefault();
         selectChapter(row.dataset.chapterSlug);
       };
     });
-    document.querySelectorAll('.chapter-check').forEach(check => {
+    document.querySelectorAll('.chapter-check[data-chapter-slug]').forEach(check => {
       check.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
