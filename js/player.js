@@ -32,6 +32,13 @@
     if (btn) btn.innerHTML = '&#9654;';
   }
 
+  function logPlayError(context) {
+    return (err) => {
+      console.error('[Player] play() failed during ' + context + ':', err);
+      resetPlayIcon();
+    };
+  }
+
   function updateTitle() {
     const titleEl = document.getElementById('player-title');
     if (!titleEl || currentIndex === null) return;
@@ -77,7 +84,7 @@
   function togglePlayPause() {
     if (AUDIO.paused) {
       resetSleepTimer();
-      AUDIO.play().catch(resetPlayIcon);
+      AUDIO.play().catch(logPlayError('manual resume'));
     } else {
       clearSleepTimer();
       AUDIO.pause();
@@ -87,6 +94,7 @@
   function loadChapter(index, opts) {
     opts = opts || {};
     if (index < 0 || index >= currentBook.chapters.length) return;
+    if (currentBook.chapters[index].file === null) return; // "Coming Soon" chapter, no audio yet
     currentIndex = index;
     introPlaying = false;
     updateTitle();
@@ -94,11 +102,12 @@
     AUDIO.src = currentBook.chapters[index].file;
     AUDIO.onended = handleChapterEnded;
     if (opts.autoplay) {
-      AUDIO.play().catch(resetPlayIcon);
+      AUDIO.play().catch(logPlayError('chapter ' + currentBook.chapters[index].slug + ' autoplay'));
     }
   }
 
   function handleChapterEnded() {
+    if (currentBook === null || currentIndex === null) return;
     const finishedSlug = currentBook.chapters[currentIndex].slug;
     markChapterComplete(currentBook.slug, finishedSlug);
     setRowComplete(finishedSlug, true);
@@ -158,7 +167,7 @@
     resetSleepTimer();
     AUDIO.onended = handleIntroEnded;
     AUDIO.src = INTRO_FILE;
-    AUDIO.play().catch(resetPlayIcon);
+    AUDIO.play().catch(logPlayError('intro playback'));
   }
 
   function mountBookScreen(bookSlug) {
