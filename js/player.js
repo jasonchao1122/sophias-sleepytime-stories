@@ -45,6 +45,35 @@
     titleEl.textContent = introPlaying ? 'Intro' : currentBook.chapters[currentIndex].title;
   }
 
+  // Registers this page as a proper OS media session (lock-screen title,
+  // artwork, and transport controls). Without this, iOS/mobile browsers
+  // often block the JS-triggered play() call that starts the next chapter
+  // when the screen is locked, since it lacks a fresh, direct user tap;
+  // an active media session with real action handlers is what lets
+  // background continuation (and lock-screen next/prev) work reliably.
+  function updateMediaSessionMetadata() {
+    if (!('mediaSession' in navigator) || currentIndex === null || !currentBook) return;
+    const chapterTitle = introPlaying ? 'Intro' : currentBook.chapters[currentIndex].title;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: chapterTitle,
+      artist: currentBook.title,
+      album: "Sophia's Sleepytime Stories",
+    });
+  }
+
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', togglePlayPause);
+    navigator.mediaSession.setActionHandler('pause', togglePlayPause);
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+      resetSleepTimer();
+      loadChapter(currentIndex - 1, { autoplay: true });
+    });
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+      resetSleepTimer();
+      loadChapter(currentIndex + 1, { autoplay: true });
+    });
+  }
+
   function updateActiveRow() {
     document.querySelectorAll('.chapter-row.active').forEach(el => el.classList.remove('active'));
     if (currentIndex === null) return;
@@ -98,6 +127,7 @@
     currentIndex = index;
     introPlaying = false;
     updateTitle();
+    updateMediaSessionMetadata();
     updateActiveRow();
     AUDIO.src = currentBook.chapters[index].file;
     AUDIO.onended = handleChapterEnded;
@@ -153,8 +183,12 @@
     AUDIO.onplay = () => {
       const btn = document.getElementById('btn-playpause');
       if (btn) btn.innerHTML = '&#9208;';
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
     };
-    AUDIO.onpause = resetPlayIcon;
+    AUDIO.onpause = () => {
+      resetPlayIcon();
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+    };
   }
 
   function selectChapter(chapterSlug) {
@@ -163,6 +197,7 @@
     document.getElementById('player-bar').classList.remove('hidden');
     introPlaying = true;
     updateTitle();
+    updateMediaSessionMetadata();
     updateActiveRow();
     resetSleepTimer();
     AUDIO.onended = handleIntroEnded;
