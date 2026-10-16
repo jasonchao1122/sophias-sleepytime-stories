@@ -39,9 +39,9 @@
     const btn = document.getElementById('intro-toggle');
     if (!btn) return;
     const on = isIntroEnabled();
-    btn.textContent = on ? '\u2713 Play Intro' : 'Play Intro';
+    btn.querySelector('.intro-toggle-state').textContent = on ? 'ON' : 'OFF';
     btn.classList.toggle('on', on);
-    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.setAttribute('aria-checked', on ? 'true' : 'false');
   }
 
   function formatTime(seconds) {

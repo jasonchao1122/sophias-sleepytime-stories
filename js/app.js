@@ -65,7 +65,10 @@ function renderBookScreen(bookSlug) {
     <img class="book-hero" src="${book.cover}" onerror="this.style.display='none'">
     <h1>${book.title}</h1>
     <p id="book-progress-line" class="book-progress">${completed}/${total} chapters &middot; ${completedTime} of ${totalTime}</p>
-    <button id="intro-toggle" class="intro-toggle" type="button" aria-pressed="false">Play Intro</button>
+    <button id="intro-toggle" class="intro-toggle" type="button" role="switch" aria-checked="false">
+      <span class="intro-toggle-label">Intro before each chapter</span>
+      <span class="intro-toggle-state">OFF</span>
+    </button>
     <div class="chapter-list">${rows}</div>
     <div id="player-bar" class="player-bar hidden">
       <img id="player-cover" class="player-bar-cover" src="${book.cover}" onerror="this.style.display='none'">

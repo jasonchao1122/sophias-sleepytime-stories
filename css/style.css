@@ -138,17 +138,38 @@ body {
 .chapter-row.complete .chapter-check { border-color: var(--color-accent); }
 
 .intro-toggle {
-  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  background: var(--color-surface);
   color: var(--color-muted);
   border: 1px solid var(--color-muted);
-  border-radius: 999px;
-  padding: 6px 14px;
-  margin: 4px 0 12px;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 4px 0 14px;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  text-align: left;
   cursor: pointer;
 }
-.intro-toggle.on { background: var(--color-accent); color: #1C1512; border-color: var(--color-accent); font-weight: 700; }
+.intro-toggle-state {
+  min-width: 48px;
+  text-align: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.intro-toggle.on { color: var(--color-text, inherit); border-color: var(--color-accent); }
+.intro-toggle.on .intro-toggle-state {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #1C1512;
+}
 
 .player-bar {
   position: fixed;
