@@ -39,7 +39,7 @@
     const btn = document.getElementById('intro-toggle');
     if (!btn) return;
     const on = isIntroEnabled();
-    btn.textContent = 'Play intro before chapter: ' + (on ? 'On' : 'Off');
+    btn.textContent = on ? '\u2713 Play Intro' : 'Play Intro';
     btn.classList.toggle('on', on);
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   }

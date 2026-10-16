@@ -148,7 +148,7 @@ body {
   font-size: 0.85rem;
   cursor: pointer;
 }
-.intro-toggle.on { color: var(--color-accent); border-color: var(--color-accent); }
+.intro-toggle.on { background: var(--color-accent); color: #1C1512; border-color: var(--color-accent); font-weight: 700; }
 
 .player-bar {
   position: fixed;
