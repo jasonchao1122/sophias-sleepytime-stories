@@ -137,6 +137,19 @@ body {
 }
 .chapter-row.complete .chapter-check { border-color: var(--color-accent); }
 
+.intro-toggle {
+  background: transparent;
+  color: var(--color-muted);
+  border: 1px solid var(--color-muted);
+  border-radius: 999px;
+  padding: 6px 14px;
+  margin: 4px 0 12px;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.intro-toggle.on { color: var(--color-accent); border-color: var(--color-accent); }
+
 .player-bar {
   position: fixed;
   left: 0;

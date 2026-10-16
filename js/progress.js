@@ -46,6 +46,22 @@ function getCompletedCount(bookSlug) {
   return (progress[bookSlug] || []).length;
 }
 
+const INTRO_PREF_KEY = "sleepytime-intro-enabled";
+
+function isIntroEnabled() {
+  try {
+    return localStorage.getItem(INTRO_PREF_KEY) === "1";
+  } catch (e) {
+    return false;
+  }
+}
+
+function setIntroEnabled(enabled) {
+  try {
+    localStorage.setItem(INTRO_PREF_KEY, enabled ? "1" : "0");
+  } catch (e) {}
+}
+
 if (typeof module !== 'undefined') {
   module.exports = {
     loadProgress,
@@ -54,5 +70,7 @@ if (typeof module !== 'undefined') {
     markChapterComplete,
     markChapterIncomplete,
     getCompletedCount,
+    isIntroEnabled,
+    setIntroEnabled,
   };
 }

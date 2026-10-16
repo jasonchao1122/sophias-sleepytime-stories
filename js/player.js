@@ -6,6 +6,46 @@
   let introPlaying = false;
   let sleepTimer = null;
 
+  // Next-chapter prefetch. When the screen is locked the phone may throttle
+  // the network, so the src swap at `ended` can stall. Downloading the next
+  // chapter to a blob URL while the current one plays makes that swap local.
+  let prefetched = { file: null, url: null };
+
+  function dropPrefetch() {
+    if (prefetched.url) URL.revokeObjectURL(prefetched.url);
+    prefetched = { file: null, url: null };
+  }
+
+  function prefetchNext(index) {
+    const next = currentBook.chapters[index + 1];
+    if (!next || next.file === null || prefetched.file === next.file) return;
+    const file = next.file;
+    fetch(file)
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
+      .then(blob => {
+        // Ignore if the user moved on or the book changed while downloading.
+        if (!currentBook || currentIndex === null) return;
+        const want = currentBook.chapters[currentIndex + 1];
+        if (!want || want.file !== file) return;
+        dropPrefetch();
+        prefetched = { file, url: URL.createObjectURL(blob) };
+      })
+      .catch(err => console.warn('[Player] prefetch failed, will stream instead:', err));
+  }
+
+  function sourceFor(chapter) {
+    return prefetched.file === chapter.file && prefetched.url ? prefetched.url : chapter.file;
+  }
+
+  function refreshIntroToggle() {
+    const btn = document.getElementById('intro-toggle');
+    if (!btn) return;
+    const on = isIntroEnabled();
+    btn.textContent = 'Play intro before chapter: ' + (on ? 'On' : 'Off');
+    btn.classList.toggle('on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+
   function clearSleepTimer() {
     if (sleepTimer) {
       clearTimeout(sleepTimer);
@@ -129,11 +169,20 @@
     updateTitle();
     updateMediaSessionMetadata();
     updateActiveRow();
-    AUDIO.src = currentBook.chapters[index].file;
+    AUDIO.src = sourceFor(currentBook.chapters[index]);
     AUDIO.onended = handleChapterEnded;
     if (opts.autoplay) {
-      AUDIO.play().catch(logPlayError('chapter ' + currentBook.chapters[index].slug + ' autoplay'));
+      AUDIO.play().catch(err => {
+        logPlayError('chapter ' + currentBook.chapters[index].slug + ' autoplay')(err);
+        // One retry: a locked-screen swap can fail transiently (network/throttling).
+        setTimeout(() => {
+          if (currentIndex === index && AUDIO.paused && !introPlaying) {
+            AUDIO.play().catch(logPlayError('chapter autoplay retry'));
+          }
+        }, 1500);
+      });
     }
+    prefetchNext(index);
   }
 
   function handleChapterEnded() {
@@ -195,11 +244,15 @@
     currentIndex = currentBook.chapters.findIndex(c => c.slug === chapterSlug);
     if (currentIndex === -1) return;
     document.getElementById('player-bar').classList.remove('hidden');
-    introPlaying = true;
+    introPlaying = isIntroEnabled();
     updateTitle();
     updateMediaSessionMetadata();
     updateActiveRow();
     resetSleepTimer();
+    if (!isIntroEnabled()) {
+      loadChapter(currentIndex, { autoplay: true });
+      return;
+    }
     AUDIO.onended = handleIntroEnded;
     AUDIO.src = INTRO_FILE;
     AUDIO.play().catch(logPlayError('intro playback'));
@@ -210,7 +263,13 @@
     currentIndex = null;
     introPlaying = false;
     clearSleepTimer();
+    dropPrefetch();
     bindBarControls();
+    refreshIntroToggle();
+    document.getElementById('intro-toggle').onclick = () => {
+      setIntroEnabled(!isIntroEnabled());
+      refreshIntroToggle();
+    };
     document.querySelectorAll('.chapter-row[data-chapter-slug]').forEach(row => {
       row.onclick = (e) => {
         e.preventDefault();
