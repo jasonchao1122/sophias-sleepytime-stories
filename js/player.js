@@ -1,10 +1,8 @@
 (function () {
   const AUDIO = document.getElementById('audio-player');
-  const SLEEP_TIMER_MS = 30 * 60 * 1000;
   let currentBook = null;
   let currentIndex = null;
   let introPlaying = false;
-  let sleepTimer = null;
 
   // Next-chapter prefetch. When the screen is locked the phone may throttle
   // the network, so the src swap at `ended` can stall. Downloading the next
@@ -44,20 +42,6 @@
     btn.textContent = 'Play intro before chapter: ' + (on ? 'On' : 'Off');
     btn.classList.toggle('on', on);
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-  }
-
-  function clearSleepTimer() {
-    if (sleepTimer) {
-      clearTimeout(sleepTimer);
-      sleepTimer = null;
-    }
-  }
-
-  function resetSleepTimer() {
-    clearSleepTimer();
-    sleepTimer = setTimeout(() => {
-      AUDIO.pause();
-    }, SLEEP_TIMER_MS);
   }
 
   function formatTime(seconds) {
@@ -105,11 +89,9 @@
     navigator.mediaSession.setActionHandler('play', togglePlayPause);
     navigator.mediaSession.setActionHandler('pause', togglePlayPause);
     navigator.mediaSession.setActionHandler('previoustrack', () => {
-      resetSleepTimer();
       loadChapter(currentIndex - 1, { autoplay: true });
     });
     navigator.mediaSession.setActionHandler('nexttrack', () => {
-      resetSleepTimer();
       loadChapter(currentIndex + 1, { autoplay: true });
     });
   }
@@ -152,10 +134,8 @@
 
   function togglePlayPause() {
     if (AUDIO.paused) {
-      resetSleepTimer();
       AUDIO.play().catch(logPlayError('manual resume'));
     } else {
-      clearSleepTimer();
       AUDIO.pause();
     }
   }
@@ -203,11 +183,9 @@
   function bindBarControls() {
     document.getElementById('btn-playpause').onclick = togglePlayPause;
     document.getElementById('btn-next').onclick = () => {
-      resetSleepTimer();
       loadChapter(currentIndex + 1, { autoplay: true });
     };
     document.getElementById('btn-prev').onclick = () => {
-      resetSleepTimer();
       loadChapter(currentIndex - 1, { autoplay: true });
     };
 
@@ -248,7 +226,6 @@
     updateTitle();
     updateMediaSessionMetadata();
     updateActiveRow();
-    resetSleepTimer();
     if (!isIntroEnabled()) {
       loadChapter(currentIndex, { autoplay: true });
       return;
@@ -262,7 +239,6 @@
     currentBook = BOOKS.find(b => b.slug === bookSlug);
     currentIndex = null;
     introPlaying = false;
-    clearSleepTimer();
     dropPrefetch();
     bindBarControls();
     refreshIntroToggle();
